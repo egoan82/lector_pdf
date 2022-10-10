@@ -27,13 +27,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  cupertino_icons: ^1.0.2
-  file_picker: ^5.2.0+1
+  cupertino_icons: ^1.0.5
+  file_picker: ^5.2.1
   flutter:
     sdk: flutter
-  isar: ^3.0.2
+  hive: ^2.2.3
   provider: ^6.0.3
-  syncfusion_flutter_pdfviewer: ^20.3.47
+  syncfusion_flutter_pdfviewer: ^20.3.48
 
 dev_dependencies:
   flutter_lints: ^1.0.0

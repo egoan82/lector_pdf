@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app/ui/screens/home/home_page.dart';
+import 'app/ui/screens/view_pdf/view_pdf.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: const HomePage(),
+      // home: const HomePage(),
+      initialRoute: 'home',
+      routes: {
+        'home': (context) => const HomePage(),
+        'viewpdf': (context) => const ViewPdf(),
+      },
     );
   }
 }
