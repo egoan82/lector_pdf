@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../domain/models/file_pdf_model.dart';
 import 'provider/home_provider.dart';
@@ -51,7 +48,6 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pushNamed(context, 'viewpdf', arguments: file);
                     } else {
                       controller.action = '';
-                      controller.file = '';
                     }
                   },
                 ),
@@ -63,39 +59,22 @@ class _HomePageState extends State<HomePage> {
                 Selector<HomeProvider, String>(
                   selector: (_, c) => c.action,
                   builder: (context, action, child) {
-                    if (action.isEmpty) {
-                      return Column(
-                        children: [
-                          Center(
-                            child: Image.asset(
-                              'assets/no_data.png',
-                              height: size.height * 0.2,
-                            ),
-                          ),
-                          const Center(
-                            child: Text(
-                              'No hay archivos recientes',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          SizedBox(height: size.height * 0.1),
-                        ],
-                      );
-                    }
-
-                    return Center(
-                      child: SizedBox(
-                        height: size.height * 0.5,
-                        width: size.width * 0.8,
-                        child: SfPdfViewer.file(
-                          File(
-                            Provider.of<HomeProvider>(
-                              context,
-                              listen: false,
-                            ).file,
+                    return Column(
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            'assets/no_data.png',
+                            height: size.height * 0.2,
                           ),
                         ),
-                      ),
+                        const Center(
+                          child: Text(
+                            'No hay archivos recientes',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        SizedBox(height: size.height * 0.1),
+                      ],
                     );
                   },
                 ),

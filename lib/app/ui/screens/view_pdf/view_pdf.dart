@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../domain/models/file_pdf_model.dart';
@@ -17,14 +18,6 @@ class ViewPdf extends StatefulWidget {
 
 class _ViewPdfState extends State<ViewPdf> with TickerProviderStateMixin {
   late PdfViewerController _pdfViewerController;
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
-    vsync: this,
-  )..repeat(reverse: true);
-  late final Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeIn,
-  );
 
   String totalPages = '0';
 
@@ -37,7 +30,6 @@ class _ViewPdfState extends State<ViewPdf> with TickerProviderStateMixin {
   @override
   void dispose() {
     _pdfViewerController.dispose();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -57,6 +49,74 @@ class _ViewPdfState extends State<ViewPdf> with TickerProviderStateMixin {
                 overflow: TextOverflow.ellipsis,
               ),
               centerTitle: true,
+              actions: [
+                PopupMenuButton(
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'detail',
+                      child: const Text('Detalle'),
+                      onTap: () async {
+                        await Future.delayed(
+                          const Duration(milliseconds: 300),
+                        );
+                        return showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Row(
+                              children: const [
+                                Icon(
+                                  Icons.description_outlined,
+                                  color: Colors.red,
+                                ),
+                                SizedBox(width: 10),
+                                Text('Detalle del archivo')
+                              ],
+                            ),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Título: ${controller.document.document.documentInformation.title}",
+                                  ),
+                                  Text(
+                                    "Tamaño: " +
+                                        "${(file.size / 1e+6)}"
+                                            .substring(0, 4) +
+                                        " Mb",
+                                  ),
+                                  Text(
+                                    "Total páginas: ${controller.document.document.pages.count}",
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    "Úbicacion: ${file.path}",
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Ok'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    PopupMenuItem(
+                      value: 'share',
+                      child: const Text('Compartir'),
+                      onTap: () {
+                        Share.shareFiles(
+                          [file.path],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
             body: Stack(
               children: [
@@ -66,6 +126,7 @@ class _ViewPdfState extends State<ViewPdf> with TickerProviderStateMixin {
                   ),
                   onDocumentLoaded: (details) {
                     controller.totalPages = details.document.pages.count;
+                    controller.document = details;
                   },
                   onPageChanged: (details) {
                     controller.currentPage = details.newPageNumber;
@@ -92,40 +153,38 @@ class _ViewPdfState extends State<ViewPdf> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                Selector<ViewPdfProvider, int>(
-                  selector: (_, c) => c.currentPage,
-                  builder: (_, currentPage, __) {
-                    if (currentPage > 1) {
-                      return FadeTransition(
-                        opacity: _animation,
-                        child: Positioned(
-                          bottom: 10,
-                          right: 10,
-                          child: InkWell(
-                            child: Container(
-                              height: size.height * 0.04,
-                              width: size.width * 0.1,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.keyboard_arrow_up_outlined,
-                                  color: Colors.white,
-                                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: Selector<ViewPdfProvider, int>(
+                    selector: (_, c) => c.currentPage,
+                    builder: (_, currentPage, __) {
+                      if (currentPage > 1) {
+                        return InkWell(
+                          child: Container(
+                            height: size.height * 0.04,
+                            width: size.width * 0.1,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.keyboard_arrow_up_outlined,
+                                color: Colors.white,
                               ),
                             ),
-                            onTap: () {
-                              _pdfViewerController.jumpToPage(1);
-                            },
                           ),
-                        ),
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                )
+                          onTap: () {
+                            _pdfViewerController.jumpToPage(1);
+                          },
+                        );
+                      }
+
+                      return const SizedBox();
+                    },
+                  ),
+                ),
               ],
             ),
           );
