@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:provider/provider.dart';
 
@@ -46,8 +47,6 @@ class _HomePageState extends State<HomePage> {
                       );
 
                       Navigator.pushNamed(context, 'viewpdf', arguments: file);
-                    } else {
-                      controller.action = '';
                     }
                   },
                 ),
@@ -56,27 +55,82 @@ class _HomePageState extends State<HomePage> {
             body: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Selector<HomeProvider, String>(
-                  selector: (_, c) => c.action,
-                  builder: (context, action, child) {
-                    return Column(
-                      children: [
-                        Center(
-                          child: Image.asset(
-                            'assets/no_data.png',
-                            height: size.height * 0.2,
-                          ),
-                        ),
-                        const Center(
-                          child: Text(
-                            'No hay archivos recientes',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                        SizedBox(height: size.height * 0.1),
-                      ],
+                Selector<HomeProvider, List<FilePdf>>(
+                  selector: (_, c) => c.listFiles,
+                  builder: (context, listFiles, child) {
+                    return (listFiles.isEmpty)
+                        ? Column(
+                            children: [
+                              Center(
+                                child: Image.asset(
+                                  'assets/no_data.png',
+                                  height: size.height * 0.2,
+                                ),
+                              ),
+                              const Center(
+                                child: Text(
+                                  'No hay archivos recientes',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                              SizedBox(height: size.height * 0.1),
+                            ],
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                            itemCount: listFiles.length,
+                            itemBuilder: (context, index) {
+                              final f = listFiles[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: ListTile(
+                                  title: Text(f.name),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Peso: ${f.size}"),
+                                      Text("Ruta: ${f.path}"),
+                                    ],
+                                  ),
+                                  leading: const FaIcon(
+                                    FontAwesomeIcons.filePdf,
+                                    color: Colors.red,
+                                  ),
+                                  trailing: const Icon(
+                                      Icons.keyboard_arrow_right_outlined),
+                                  onTap: () {},
+                                ),
+                              );
+                            },
+                          ));
+                  },
+                ),
+              ],
+            ),
+            floatingActionButton: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  onPressed: () {
+                    controller.getAll();
+                  },
+                  child: const Icon(Icons.search),
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  onPressed: () {
+                    controller.add(
+                      FilePdf(
+                        name: 'Isar Manual',
+                        identifier: '1234',
+                        size: 240,
+                        path: 'Descargas',
+                      ),
                     );
                   },
+                  backgroundColor: Colors.blue,
+                  child: const Icon(Icons.add),
                 ),
               ],
             ),
