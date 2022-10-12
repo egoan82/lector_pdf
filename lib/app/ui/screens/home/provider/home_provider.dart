@@ -9,7 +9,18 @@ class HomeProvider with ChangeNotifier {
   }
 
   void load() async {
-    DB.i.loadDB();
+    await DB.i.loadDB();
+    if (DB.i.isOpenDB()) {
+      await getAll();
+    }
+  }
+
+  bool _sortList = true;
+  bool get sortList => _sortList;
+
+  set sortList(bool s) {
+    _sortList = s;
+    notifyListeners();
   }
 
   List<FilePdf> _listFiles = [];
@@ -24,22 +35,43 @@ class HomeProvider with ChangeNotifier {
     await DB.i.add(file);
   }
 
-  Future<void> getAll() async {
-    final list = await DB.i.getAll();
+  Future<void> getAll({bool sort = true}) async {
+    final list = await DB.i.getAll(sort: sort);
 
     if (list.isNotEmpty) {
       final l = list
           .map(
             (e) => FilePdf(
+              id: e.id,
               name: e.name,
               identifier: e.identifier,
               size: e.size,
               path: e.path,
+              date: e.date,
             ),
           )
           .toList();
 
       listFiles = l;
     }
+  }
+
+  Future<FilePdf> getFile(int id) async {
+    final file = await DB.i.getFile(id);
+
+    final f = FilePdf(
+      id: file.id,
+      name: file.name,
+      identifier: file.identifier,
+      size: file.size,
+      path: file.path,
+      date: file.date,
+    );
+
+    return f;
+  }
+
+  Future<void> deleteFile(int id) async {
+    await DB.i.deleteFile(id);
   }
 }

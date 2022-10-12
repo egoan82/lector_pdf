@@ -17,23 +17,28 @@ const FilePdfColletionSchema = CollectionSchema(
   name: r'FilePdfColletion',
   id: 128120080690823316,
   properties: {
-    r'identifier': PropertySchema(
+    r'date': PropertySchema(
       id: 0,
+      name: r'date',
+      type: IsarType.dateTime,
+    ),
+    r'identifier': PropertySchema(
+      id: 1,
       name: r'identifier',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'name',
       type: IsarType.string,
     ),
     r'path': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'path',
       type: IsarType.string,
     ),
     r'size': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'size',
       type: IsarType.long,
     )
@@ -43,7 +48,21 @@ const FilePdfColletionSchema = CollectionSchema(
   deserialize: _filePdfColletionDeserialize,
   deserializeProp: _filePdfColletionDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'date': IndexSchema(
+      id: -7552997827385218417,
+      name: r'date',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'date',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _filePdfColletionGetId,
@@ -70,10 +89,11 @@ void _filePdfColletionSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.identifier);
-  writer.writeString(offsets[1], object.name);
-  writer.writeString(offsets[2], object.path);
-  writer.writeLong(offsets[3], object.size);
+  writer.writeDateTime(offsets[0], object.date);
+  writer.writeString(offsets[1], object.identifier);
+  writer.writeString(offsets[2], object.name);
+  writer.writeString(offsets[3], object.path);
+  writer.writeLong(offsets[4], object.size);
 }
 
 FilePdfColletion _filePdfColletionDeserialize(
@@ -83,11 +103,12 @@ FilePdfColletion _filePdfColletionDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = FilePdfColletion();
+  object.date = reader.readDateTime(offsets[0]);
   object.id = id;
-  object.identifier = reader.readString(offsets[0]);
-  object.name = reader.readString(offsets[1]);
-  object.path = reader.readString(offsets[2]);
-  object.size = reader.readLong(offsets[3]);
+  object.identifier = reader.readString(offsets[1]);
+  object.name = reader.readString(offsets[2]);
+  object.path = reader.readString(offsets[3]);
+  object.size = reader.readLong(offsets[4]);
   return object;
 }
 
@@ -99,12 +120,14 @@ P _filePdfColletionDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -129,6 +152,14 @@ extension FilePdfColletionQueryWhereSort
   QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhere> anyDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'date'),
+      );
     });
   }
 }
@@ -201,10 +232,159 @@ extension FilePdfColletionQueryWhere
       ));
     });
   }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhereClause>
+      dateEqualTo(DateTime date) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'date',
+        value: [date],
+      ));
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhereClause>
+      dateNotEqualTo(DateTime date) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [],
+              upper: [date],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [date],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [date],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'date',
+              lower: [],
+              upper: [date],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhereClause>
+      dateGreaterThan(
+    DateTime date, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'date',
+        lower: [date],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhereClause>
+      dateLessThan(
+    DateTime date, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'date',
+        lower: [],
+        upper: [date],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterWhereClause>
+      dateBetween(
+    DateTime lowerDate,
+    DateTime upperDate, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'date',
+        lower: [lowerDate],
+        includeLower: includeLower,
+        upper: [upperDate],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension FilePdfColletionQueryFilter
     on QueryBuilder<FilePdfColletion, FilePdfColletion, QFilterCondition> {
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterFilterCondition>
+      dateEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'date',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterFilterCondition>
+      dateGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'date',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterFilterCondition>
+      dateLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'date',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterFilterCondition>
+      dateBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'date',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -734,6 +914,19 @@ extension FilePdfColletionQueryLinks
 
 extension FilePdfColletionQuerySortBy
     on QueryBuilder<FilePdfColletion, FilePdfColletion, QSortBy> {
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterSortBy> sortByDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'date', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterSortBy>
+      sortByDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'date', Sort.desc);
+    });
+  }
+
   QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterSortBy>
       sortByIdentifier() {
     return QueryBuilder.apply(this, (query) {
@@ -790,6 +983,19 @@ extension FilePdfColletionQuerySortBy
 
 extension FilePdfColletionQuerySortThenBy
     on QueryBuilder<FilePdfColletion, FilePdfColletion, QSortThenBy> {
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterSortBy> thenByDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'date', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterSortBy>
+      thenByDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'date', Sort.desc);
+    });
+  }
+
   QueryBuilder<FilePdfColletion, FilePdfColletion, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -859,6 +1065,12 @@ extension FilePdfColletionQuerySortThenBy
 
 extension FilePdfColletionQueryWhereDistinct
     on QueryBuilder<FilePdfColletion, FilePdfColletion, QDistinct> {
+  QueryBuilder<FilePdfColletion, FilePdfColletion, QDistinct> distinctByDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'date');
+    });
+  }
+
   QueryBuilder<FilePdfColletion, FilePdfColletion, QDistinct>
       distinctByIdentifier({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -892,6 +1104,12 @@ extension FilePdfColletionQueryProperty
   QueryBuilder<FilePdfColletion, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<FilePdfColletion, DateTime, QQueryOperations> dateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'date');
     });
   }
 

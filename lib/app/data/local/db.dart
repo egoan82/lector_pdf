@@ -11,8 +11,13 @@ class DB {
 
   late Isar isar;
 
-  void loadDB() async {
+  Future<void> loadDB() async {
     isar = await Isar.open([FilePdfColletionSchema]);
+  }
+
+  bool isOpenDB() {
+    final state = isar.isOpen;
+    return state;
   }
 
   Future<void> add(FilePdf file) async {
@@ -20,7 +25,8 @@ class DB {
       ..name = file.name
       ..identifier = file.identifier
       ..path = file.path
-      ..size = file.size;
+      ..size = file.size
+      ..date = file.date;
 
     await isar.writeTxn(
       () async {
@@ -29,8 +35,36 @@ class DB {
     );
   }
 
-  Future<List<FilePdfColletion>> getAll() async {
-    final r = await isar.filePdfColletions.filter().nameIsNotEmpty().findAll();
+  Future<List<FilePdfColletion>> getAll({bool sort = true}) async {
+    final List<FilePdfColletion> r;
+    if (sort) {
+      r = await isar.filePdfColletions
+          .filter()
+          .nameIsNotEmpty()
+          .sortByDateDesc()
+          .findAll();
+    } else {
+      r = await isar.filePdfColletions
+          .filter()
+          .nameIsNotEmpty()
+          .sortByDate()
+          .findAll();
+    }
+
     return r;
+  }
+
+  Future<FilePdfColletion> getFile(int id) async {
+    final r = await isar.filePdfColletions.get(id);
+    return r!;
+  }
+
+  Future<bool> deleteFile(int id) async {
+    final r = await isar.writeTxn(
+      () async {
+        await isar.filePdfColletions.delete(id);
+      },
+    );
+    return true;
   }
 }
