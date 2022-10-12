@@ -14,10 +14,9 @@ class ButtonSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(
-        Icons.search,
-      ),
+    return FloatingActionButton(
+      heroTag: 'get',
+      child: const Icon(Icons.search),
       onPressed: () async {
         FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.custom,

@@ -59,12 +59,19 @@ class DB {
     return r!;
   }
 
-  Future<bool> deleteFile(int id) async {
-    final r = await isar.writeTxn(
+  Future<void> deleteFile(int id) async {
+    await isar.writeTxn(
       () async {
         await isar.filePdfColletions.delete(id);
       },
     );
-    return true;
+  }
+
+  Future<void> deleteAll() async {
+    await isar.writeTxn(
+      () async {
+        await isar.filePdfColletions.filter().nameIsNotEmpty().deleteAll();
+      },
+    );
   }
 }

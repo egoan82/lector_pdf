@@ -56,14 +56,22 @@ class ListRecentsFiles extends StatelessWidget {
               ),
             ),
             child: ListTile(
-              title: Text(f.name),
+              title: Text(
+                f.name,
+                overflow: TextOverflow.ellipsis,
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Peso: " + "${(f.size / 1e+6)}".substring(0, 4) + " Mb"),
                   Text(
-                      "Fecha: ${DateFormat('y-MM-dd hh:mm:ss a').format(f.date)}"),
-                  Text("Ruta: ${f.path}"),
+                    "Fecha: ${DateFormat('y-MM-dd hh:mm:ss a').format(f.date)}",
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    "Ruta: ${f.path}",
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
               leading: const FaIcon(

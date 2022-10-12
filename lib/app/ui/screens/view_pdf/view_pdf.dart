@@ -7,7 +7,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../domain/models/file_pdf_model.dart';
-import '../home/provider/home_provider.dart';
 import 'provider/view_pdf_provider.dart';
 import 'widgets/button_up.dart';
 import 'widgets/detail_file.dart';

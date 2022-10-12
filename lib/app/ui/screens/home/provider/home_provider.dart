@@ -38,8 +38,10 @@ class HomeProvider with ChangeNotifier {
   Future<void> getAll({bool sort = true}) async {
     final list = await DB.i.getAll(sort: sort);
 
+    List<FilePdf> l = [];
+
     if (list.isNotEmpty) {
-      final l = list
+      l = list
           .map(
             (e) => FilePdf(
               id: e.id,
@@ -51,9 +53,8 @@ class HomeProvider with ChangeNotifier {
             ),
           )
           .toList();
-
-      listFiles = l;
     }
+    listFiles = l;
   }
 
   Future<FilePdf> getFile(int id) async {
@@ -73,5 +74,10 @@ class HomeProvider with ChangeNotifier {
 
   Future<void> deleteFile(int id) async {
     await DB.i.deleteFile(id);
+  }
+
+  Future<void> deleteAll() async {
+    await DB.i.deleteAll();
+    await getAll();
   }
 }
