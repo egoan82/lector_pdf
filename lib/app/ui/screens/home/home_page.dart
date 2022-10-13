@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:open_as_default/open_as_default.dart';
 import 'dart:io';
 
 import 'package:provider/provider.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import '../../../domain/models/file_pdf_model.dart';
 import 'provider/home_provider.dart';
@@ -19,6 +21,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  late StreamSubscription _intentDataStreamSubscription;
+  List<SharedMediaFile>? _sharedFiles;
+
   @override
   void initState() {
     super.initState();
@@ -29,34 +35,59 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  @override
+  void dispose() {
+    _intentDataStreamSubscription.cancel();
+    super.dispose();
+  }
+
   void loadIntent() async {
     if (Platform.isAndroid) {
-      OpenAsDefault.getFileIntent.then((value) async {
-        if (value != null) {
-          final sizeFile = await value.length();
-          final file = FilePdf(
-            name: value.path.split('/').last,
-            identifier: value.path.split('/').last,
-            size: sizeFile,
-            path: value.path,
-            date: DateTime.now(),
-          );
-
-          final r = await Navigator.pushNamed(
-            context,
-            'viewpdf',
-            arguments: file,
-          );
-
-          if (r != null || r == true) {
-            Provider.of<HomeProvider>(
-              _scaffoldKey.currentContext!,
-              listen: false,
-            ).getAll();
-          }
-        }
-        // code
+      // For sharing images coming from outside the app while the app is in the memory
+      _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
+          .listen((List<SharedMediaFile> value) {
+        _sharedFiles = value;
+        print("Shared getMediaStream:" +
+            (_sharedFiles?.map((f) => f.path).join(",") ?? ""));
+      }, onError: (err) {
+        print("getIntentDataStream error: $err");
       });
+
+      // For sharing images coming from outside the app while the app is closed
+      ReceiveSharingIntent.getInitialMedia()
+          .then((List<SharedMediaFile> value) {
+        _sharedFiles = value;
+        print(value.length);
+        print("Shared getInitialMedia:" +
+            (_sharedFiles?.map((f) => f.path).join(",") ?? ""));
+      });
+
+      // await OpenAsDefault.getFileIntent.then((value) async {
+      //   if (value != null) {
+      //     final sizeFile = await value.length();
+      //     final file = FilePdf(
+      //       name: value.path.split('/').last,
+      //       identifier: value.path.split('/').last,
+      //       size: sizeFile,
+      //       path: value.path,
+      //       date: DateTime.now(),
+      //     );
+
+      //     final r = await Navigator.pushNamed(
+      //       context,
+      //       'viewpdf',
+      //       arguments: file,
+      //     );
+
+      //     // if (r != null || r == true) {
+      //     //   Provider.of<HomeProvider>(
+      //     //     _scaffoldKey.currentContext!,
+      //     //     listen: false,
+      //     //   ).getAll();
+      //     // }
+      //   }
+      //   // code
+      // });
     }
   }
 
